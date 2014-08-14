@@ -76,7 +76,7 @@ def main(argv=None):
 
     with open(dat_file) as dat:
         for record in ghcnm_stations(dat):
-            print(record.id,
+            print(record.id, record.element,
               median(record.data.values()), mad(record.data.values()))
 
 if __name__ == '__main__':
