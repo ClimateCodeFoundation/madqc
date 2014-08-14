@@ -44,7 +44,7 @@ def median(values):
     """
 
     s = sorted(values)
-    h = len(s)/2.0
+    h = (len(s)-1)/2.0
     n = int(h)
     if n != h:
         n = int(h+0.5)&~1
