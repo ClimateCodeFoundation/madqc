@@ -36,6 +36,36 @@ def ghcnm_stations(inp):
                         data["{:04d}{:02d}".format(year, m+1)] = v
             yield record
 
+def median(values):
+    """
+    Return the value of the median element.
+    When len(values) is even, two elements are nearest "the
+    middle"; the one with even index is returned.
+    """
+
+    s = sorted(values)
+    h = len(s)/2.0
+    n = int(h)
+    if n != h:
+        n = int(h+0.5)&~1
+    return s[n]
+
+def deviation(values):
+    """
+    Each value is converted to its _deviation_, which is the
+    value with the median value subtracted.
+    """
+    
+    m = median(values)
+    return [v - m for v in values]
+
+def mad(values):
+    """
+    The median of the absolute deviations.
+    """
+
+    return median(abs(d) for d in deviation(values))
+
 
 def main(argv=None):
     import glob
@@ -46,8 +76,8 @@ def main(argv=None):
 
     with open(dat_file) as dat:
         for record in ghcnm_stations(dat):
-            print(record)
-            break
+            print(record.id,
+              median(record.data.values()), mad(record.data.values()))
 
 if __name__ == '__main__':
     main()
