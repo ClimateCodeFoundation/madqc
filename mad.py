@@ -50,7 +50,7 @@ def ghcnm_write_station(record, out):
         if vs == MISSING_YEAR:
             continue
 
-        FMT = "{:5d}  f"*12
+        FMT = "{:5d}   "*12
         fmt_vs = FMT.format(*vs)
         out.write("{}{}{}{}\n".format(record.id, year,
           record.element, fmt_vs))
