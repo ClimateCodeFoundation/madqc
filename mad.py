@@ -155,7 +155,8 @@ def treat(dat, progress=sys.stderr, log=None, qc=None):
           r=r_data), log)
         log.write("\n")
 
-        good_months = [k for k,v in r_data.items() if v < r_threshold]
+        good_months = [k for k,v in r_data.items()
+          if abs(v) < r_threshold]
         good_data = dict((k,record.data[k]) for k in good_months)
         record.data = good_data
         ghcnm_write_station(record, qc)
