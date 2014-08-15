@@ -20,4 +20,6 @@ Experimental.
 
 ## Running
 
+The input file should be in GHCN-M v3 .dat format.
+
     ./mad.py [tavg.dat] > big.json
