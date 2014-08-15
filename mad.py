@@ -35,24 +35,23 @@ def ghcnm_stations(inp):
                 for m in range(12):
                     v = int(line[19+m*8:24+m*8])
                     if v != -9999:
-                        v /= 100.0
                         data["{:04d}{:02d}".format(year, m+1)] = v
             yield record
 
 def ghcnm_write_station(record, out):
     if not record.data:
         return
-    MISSING_YEAR = [-99.99]*12
+    MISSING_YEAR = [-9999]*12
     min_year = int(min(record.data)[:4])
     max_year = int(max(record.data)[:4])
     for year in range(min_year, max_year+1):
-        vs = [record.data.get("{}{:02d}".format(year, m+1), -99.99)
+        vs = [record.data.get("{}{:02d}".format(year, m+1), -9999)
           for m in range(12)]
         if vs == MISSING_YEAR:
             continue
 
-        FMT = "{:5.0f}  f"*12
-        fmt_vs = FMT.format(*[v * 100 for v in vs])
+        FMT = "{:5d}  f"*12
+        fmt_vs = FMT.format(*vs)
         out.write("{}{}{}{}\n".format(record.id, year,
           record.element, fmt_vs))
 
@@ -148,7 +147,7 @@ def treat(dat, progress=sys.stderr, log=None, qc=None):
 
     for record in ghcnm_stations(dat):
         print(record.id, record.element,
-          "{:6.2f}".format(median(record.data.values())),
+          "{}".format(median(record.data.values())),
           mad(record.data.values()), file=progress)
         r_data = mad_r(record)
         json.dump(dict(id=record.id, element=record.element,
