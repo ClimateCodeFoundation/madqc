@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import itertools
+import json
+import math
 import os
+import sys
 
 def station_id(line):
     return line[:11]
@@ -36,6 +39,24 @@ def ghcnm_stations(inp):
                         data["{:04d}{:02d}".format(year, m+1)] = v
             yield record
 
+def ghcnm_write_station(record, out):
+    if not record.data:
+        return
+    MISSING_YEAR = [-99.99]*12
+    min_year = int(min(record.data)[:4])
+    max_year = int(max(record.data)[:4])
+    for year in range(min_year, max_year+1):
+        vs = [record.data.get("{}{:02d}".format(year, m+1), -99.99)
+          for m in range(12)]
+        if vs == MISSING_YEAR:
+            continue
+
+        FMT = "{:5.0f}  f"*12
+        fmt_vs = FMT.format(*[v * 100 for v in vs])
+        out.write("{}{}{}{}\n".format(record.id, year,
+          record.element, fmt_vs))
+
+
 def median(values):
     """
     Return the value of the median element.
@@ -67,19 +88,77 @@ def mad(values):
     return median(abs(d) for d in deviation(values))
 
 
+def mad_r(record, months_required=20):
+    """
+    Convert the .data of `record` into a "r-scores", where
+    the r-score is the datum's (signed) deviation (from the median)
+    divided by the MAD (see mad()).
+    
+    Each of the 12 calendar months are treated
+    separately, and at least `months_required` values for any
+    particular month are required; if there are fewer then all
+    the data for that calendar month is invalidated.
+
+    A fresh dict is returned.
+    """
+
+    new = {}
+    for s in ["{:02d}".format(m+1) for m in range(12)]:
+        values = [v for k,v in record.data.items() if k.endswith(s)]
+        if len(values) < months_required:
+            continue
+        mad_v = mad(values)
+        median_v = median(values)
+        for k, v in record.data.items():
+            if k.endswith(s):
+                if mad_v:
+                    new[k] = (v-median_v)/mad_v
+                else:
+                    if v == median_v:
+                        new[k] = 0.0
+                    else:
+                        new[k] = math.copysign(float("inf"), (v-median_v))
+    return new
+
 def main(argv=None):
     import glob
 
-    pattern = os.path.expanduser("~/.local/share/data/isti")
-    globs = glob.glob(os.path.join(pattern, "merged*.dat"))
-    dat_file = sorted(globs)[-1]
+    if argv is None:
+        argv = sys.argv
 
-    with open(dat_file) as dat:
-        for record in ghcnm_stations(dat):
-            print(record.id, record.element,
-              "{:6.2f}".format(median(record.data.values())),
-              mad(record.data.values()))
+    arg = argv[1:]
+    if not arg:
+        pattern = os.path.expanduser("~/.local/share/data/isti")
+        globs = glob.glob(os.path.join(pattern, "merged*.dat"))
+        dat_file = sorted(globs)[-1]
+        sys.stderr.write("using {}...\n".format(dat_file))
+    else:
+        (dat_file,) = arg
+
+    qc_file = os.path.basename(dat_file)
+    if qc_file.endswith(".dat"):
+        qc_file = qc_file[:-4]
+    qc_file = qc_file + ".qc.dat"
+
+    with open(dat_file) as dat, open(qc_file, 'w') as qc:
+        treat(dat, progress=sys.stderr, log=sys.stdout, qc=qc)
+
+def treat(dat, progress=sys.stderr, log=None, qc=None):
+    r_threshold = 5.0
+
+    for record in ghcnm_stations(dat):
+        print(record.id, record.element,
+          "{:6.2f}".format(median(record.data.values())),
+          mad(record.data.values()), file=progress)
+        r_data = mad_r(record)
+        json.dump(dict(id=record.id, element=record.element,
+          r=r_data), log)
+        log.write("\n")
+
+        good_months = [k for k,v in r_data.items() if v < r_threshold]
+        good_data = dict((k,record.data[k]) for k in good_months)
+        record.data = good_data
+        ghcnm_write_station(record, qc)
 
 if __name__ == '__main__':
     main()
-        
