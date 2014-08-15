@@ -20,6 +20,13 @@ Experimental.
 
 ## Running
 
-The input file should be in GHCN-M v3 .dat format.
-
     ./mad.py [tavg.dat] > big.json
+
+The input file should be in GHCN-M v3 .dat format. If the
+filename is not specified as an argument, a file matching the
+path
+
+    ~/.local/share/data/isti/merged*.dat
+
+is used. If there are several, the ASCIIbetically last is
+chosen.
