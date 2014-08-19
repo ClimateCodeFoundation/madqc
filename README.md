@@ -14,9 +14,12 @@ median). At least 20 monthly values are required, if the number
 of values is insufficient, they are all rejected. Any value whose
 distance from the median exceeds 5 times the MAD is rejected.
 
+The method is somewhat inspired by the "z-score" of Lawrimore et
+al, 2011.
+
 ## Status
 
-Experimental.
+Provisional.
 
 ## Running
 
