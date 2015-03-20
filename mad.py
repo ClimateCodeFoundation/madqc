@@ -124,10 +124,14 @@ def mad_r(record, months_required=20):
 def treat(dat, qc, progress=None):
     r_threshold = 5.0
 
+    size = os.fstat(dat.fileno()).st_size
+
     for record in ghcnm_stations(dat):
         if progress:
-            progress.write("\r{} {} {} {}      "
-              .format(record.id,
+            frac = os.lseek(dat.fileno(), 0, 1) / size
+            progress.write("\r{: 3.0f}% {} {} {} {}      ".format(
+                100 * frac,
+                record.id,
                 record.element,
                 median(record.data.values()),
                 mad(record.data.values())))
