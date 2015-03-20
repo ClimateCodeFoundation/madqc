@@ -23,7 +23,9 @@ Provisional.
 
 ## Running
 
-    ./mad.py [tavg.dat] > big.json
+    ./mad.py [tavg.dat]
+
+Reads the file `tavg.dat` and creates the QC'd output `tavg.qc.dat`.
 
 The input file should be in GHCN-M v3 .dat format. If the
 filename is not specified as an argument, a file matching the
@@ -34,7 +36,6 @@ path
 is used. If there are several, the ASCIIbetically last is
 chosen.
 
-The QC'd output is written to a file based on the name of the
-input. If the input is named `tavg.dat` the output is named
-`tavg.qc.dat` (if the input has some other extension apart from
-`.dat` then `.qc.dat` is simply appended).
+The QC'd output is written to a file based on the name of the input. If
+the input is named `tavg.dat` the output is named `tavg.qc.dat` (if
+the input has some other extension then `.qc.dat` is simply appended).
