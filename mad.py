@@ -126,9 +126,13 @@ def treat(dat, progress=None, log=None, qc=None):
 
     for record in ghcnm_stations(dat):
         if progress:
-            print(record.id, record.element,
-              "{}".format(median(record.data.values())),
-              mad(record.data.values()), file=progress)
+            progress.write("\r{} {} {} {}"
+              .format(record.id,
+                record.element,
+                median(record.data.values()),
+                mad(record.data.values())))
+            progress.flush()
+
         r_data = mad_r(record)
         json.dump(dict(id=record.id, element=record.element,
           r=r_data), log)
@@ -139,6 +143,8 @@ def treat(dat, progress=None, log=None, qc=None):
         good_data = dict((k,record.data[k]) for k in good_months)
         record.data = good_data
         ghcnm_write_station(record, qc)
+
+    print(file=progress)
 
 def main(argv=None):
     import getopt
