@@ -23,6 +23,8 @@ Provisional.
 
 ## Running
 
+Python 3 is required.
+
     ./mad.py [tavg.dat]
 
 Reads the file `tavg.dat` and creates the QC'd output `tavg.qc.dat`.
