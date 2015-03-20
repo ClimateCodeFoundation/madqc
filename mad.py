@@ -155,7 +155,7 @@ def main(argv=None):
             print(__doc__)
             return 0
         if k == '--progress':
-            progress = sys.stdout
+            progress = sys.stderr
             continue
 
     if not arg:
