@@ -121,7 +121,7 @@ def mad_r(record, months_required=20):
                         new[k] = math.copysign(float("inf"), (v-median_v))
     return new
 
-def treat(dat, progress=None, log=None, qc=None):
+def treat(dat, qc, progress=None):
     r_threshold = 5.0
 
     for record in ghcnm_stations(dat):
@@ -134,9 +134,6 @@ def treat(dat, progress=None, log=None, qc=None):
             progress.flush()
 
         r_data = mad_r(record)
-        json.dump(dict(id=record.id, element=record.element,
-          r=r_data), log)
-        log.write("\n")
 
         good_months = [k for k,v in r_data.items()
           if abs(v) < r_threshold]
@@ -178,7 +175,7 @@ def main(argv=None):
     qc_file = qc_file + ".qc.dat"
 
     with open(dat_file) as dat, open(qc_file, 'w') as qc:
-        treat(dat, progress=progress, log=sys.stdout, qc=qc)
+        treat(dat, qc, progress=progress)
 
 if __name__ == '__main__':
     sys.exit(main())
