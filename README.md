@@ -33,3 +33,8 @@ path
 
 is used. If there are several, the ASCIIbetically last is
 chosen.
+
+The QC'd output is written to a file based on the name of the
+input. If the input is named `tavg.dat` the output is named
+`tavg.qc.dat` (if the input has some other extension apart from
+`.dat` then `.qc.dat` is simply appended).
