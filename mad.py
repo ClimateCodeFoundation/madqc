@@ -126,7 +126,7 @@ def treat(dat, progress=None, log=None, qc=None):
 
     for record in ghcnm_stations(dat):
         if progress:
-            progress.write("\r{} {} {} {}"
+            progress.write("\r{} {} {} {}      "
               .format(record.id,
                 record.element,
                 median(record.data.values()),
